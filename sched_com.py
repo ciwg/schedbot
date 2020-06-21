@@ -12,7 +12,8 @@ year = 2020
 # con = "stevegttest12020"
 con = "nomcon2020"
 key = os.environ['SCHED_API_KEY']
-next_mcp_num = 69
+# next_mcp_num = 69
+next_mcp_num = 139
 
 mcp_index_url = "https://script.google.com/a/t7a.org/macros/s/AKfycbx4RA9gKTs8feuWgiE2QMuu_xCgkp3sgldZJvecmMN9PmreW0ei/exec"
 
@@ -52,7 +53,7 @@ def add_link(session, mcp_num):
         print("MISSING venue_id", start, title)
     if session.get("Session Notes URL"):
         print("skipping", start, title)
-        return
+        return False
     filename = "mcp-%d-nomcon-%d-%s" % (mcp_num, year, title)
     filename = filename.lower()
     filename = re.sub('\W', '-', filename) 
@@ -74,6 +75,7 @@ def add_link(session, mcp_num):
     print("res:", res)
     print("verify %s %s" % (start, title) )
     x = input()
+    return True
 
 def main():
 
@@ -82,8 +84,8 @@ def main():
     # print(len(sessions))
     # sys.exit(1)
     for session in sessions:
-        add_link(session, mcp_num)
-        mcp_num += 1
+        if add_link(session, mcp_num):
+            mcp_num += 1
 
     '''
     print("======")
