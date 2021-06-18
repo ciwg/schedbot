@@ -8,12 +8,11 @@ import sys
 import time
 import tempfile
 
-year = 2020
+year = 2021
 # con = "stevegttest12020"
-con = "nomcon2020"
+con = "nomcon2021"
 key = os.environ['SCHED_API_KEY']
-# next_mcp_num = 69
-next_mcp_num = 139
+next_mcp_num = 170
 
 mcp_index_url = "https://script.google.com/a/t7a.org/macros/s/AKfycbx4RA9gKTs8feuWgiE2QMuu_xCgkp3sgldZJvecmMN9PmreW0ei/exec"
 
@@ -63,6 +62,7 @@ def add_link(session, mcp_num):
     parms = "submit=create&session_year=%d&session_title=%s&session_filename=%s&session_date=%s&session_speakers=%s" % (
                 year, q(title), filename, q(start), q(speakers))
     notes_url = q("%s?%s" % (mcp_index_url, parms))
+    print("%s?%s" % (mcp_index_url, parms))
     url = "https://%s.sched.com/api/session/mod?api_key=%s&session_key=%s&venue_id=%s&Session_Notes_URL=%s" % (
             con, key, sk, venue_id, notes_url)
     print(session)
@@ -81,7 +81,7 @@ def main():
 
     mcp_num = next_mcp_num
     sessions = list_sessions()
-    # print(len(sessions))
+    print(len(sessions))
     # sys.exit(1)
     for session in sessions:
         if add_link(session, mcp_num):
