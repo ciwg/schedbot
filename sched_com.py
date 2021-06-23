@@ -2,6 +2,7 @@
 
 import os
 import json
+import pickle
 import re
 import requests
 import sys
@@ -12,7 +13,9 @@ year = 2021
 # con = "stevegttest12020"
 con = "nomcon2021"
 key = os.environ['SCHED_API_KEY']
-next_mcp_num = 170
+first_mcp_num = 170
+
+dbfn = "sched_com-%d.db" % year
 
 mcp_index_url = "https://script.google.com/a/t7a.org/macros/s/AKfycbx4RA9gKTs8feuWgiE2QMuu_xCgkp3sgldZJvecmMN9PmreW0ei/exec"
 
@@ -50,9 +53,6 @@ def add_link(session, mcp_num):
         speakers = artists
     if not venue_id:
         print("MISSING venue_id", start, title)
-    if session.get("Session Notes URL"):
-        print("skipping", start, title)
-        return False
     filename = "mcp-%d-nomcon-%d-%s" % (mcp_num, year, title)
     filename = filename.lower()
     filename = re.sub('\W', '-', filename) 
@@ -67,6 +67,18 @@ def add_link(session, mcp_num):
             con, key, sk, venue_id, notes_url)
     print(session)
     print("%s" % url)
+    existing_url = session.get("Session Notes URL")
+    if existing_url:
+        existing_url = q(existing_url)
+        if existing_url == notes_url:
+            print("MATCHED %s %s" % (start, title) )
+        else:
+            print("CHANGED -- if there is no doc for this session, then remove URL from sched and re-run")
+            print("CHANGED %s %s" % (start, title) )
+            print("old: %s" % existing_url)
+            print("new: %s" % notes_url)
+            x = input()
+        return False
     print("pending %s %s" % (start, title) )
     x = input()
     res = requests.get(url=url)
@@ -79,13 +91,39 @@ def add_link(session, mcp_num):
 
 def main():
 
-    mcp_num = next_mcp_num
+    try:
+        db = pickle.load(open(dbfn, 'rb'))
+    except:
+        db = {}
+        db['sk2mcp'] = {}
+
     sessions = list_sessions()
+    sessions = sorted(sessions, key=lambda x: x['event_start'])
     print(len(sessions))
     # sys.exit(1)
+
+    # assign mcp numbers
     for session in sessions:
-        if add_link(session, mcp_num):
-            mcp_num += 1
+        sk = session['event_key']
+        if db['sk2mcp'].get(sk):
+            continue
+        # get next available mcp number
+        for mcp_num in range(first_mcp_num, 999):
+            if mcp_num in db['sk2mcp'].values():
+                continue
+            db['sk2mcp'][sk] = mcp_num
+            break
+
+    pickle.dump(db, open(dbfn, 'wb'))
+
+    for session in sessions:
+        # print(session['event_start'], session['name'])
+        # if session['event_key'] != "47":
+        #   continue
+        sk = session['event_key']
+        mcp_num = db['sk2mcp'][sk]
+        assert(mcp_num >= first_mcp_num)
+        add_link(session, mcp_num)
 
     '''
     print("======")
