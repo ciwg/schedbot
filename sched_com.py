@@ -73,7 +73,7 @@ def add_link(session, mcp_num):
         if existing_url == notes_url:
             print("MATCHED %s %s" % (start, title) )
         else:
-            print("CHANGED -- if there is no doc for this session, then remove URL from sched and re-run")
+            print("CHANGED -- if there is no doc for mcp-%d, then remove URL from sched and re-run" % mcp_num)
             print("CHANGED %s %s" % (start, title) )
             print("old: %s" % existing_url)
             print("new: %s" % notes_url)
