@@ -9,15 +9,16 @@ import sys
 import time
 import tempfile
 
-year = 2021
+year = 2022
 # con = "stevegttest12020"
-con = "nomcon2021"
+con = "nomcon2022"
 key = os.environ['SCHED_API_KEY']
-first_mcp_num = 170
+first_mcp_num = 250
 
 dbfn = "sched_com-%d.db" % year
 
-mcp_index_url = "https://script.google.com/a/t7a.org/macros/s/AKfycbx4RA9gKTs8feuWgiE2QMuu_xCgkp3sgldZJvecmMN9PmreW0ei/exec"
+# mcp_index_url = "https://script.google.com/a/t7a.org/macros/s/AKfycbx4RA9gKTs8feuWgiE2QMuu_xCgkp3sgldZJvecmMN9PmreW0ei/exec"
+mcp_index_url = "http://mcp.systems/"
 
 '''
 # add
@@ -81,7 +82,10 @@ def add_link(session, mcp_num):
         return False
     print("pending %s %s" % (start, title) )
     x = input()
+    
+    # XXX uncomment for prod
     res = requests.get(url=url)
+
     time.sleep(1)
     list_sessions()
     print("res:", res)
@@ -100,7 +104,13 @@ def main():
     sessions = list_sessions()
     sessions = sorted(sessions, key=lambda x: x['event_start'])
     print(len(sessions))
-    # sys.exit(1)
+
+    '''
+    print("======")
+    for session in list_sessions():
+        print(session)
+    sys.exit(1)
+    '''
 
     # assign mcp numbers
     for session in sessions:
@@ -125,12 +135,6 @@ def main():
         assert(mcp_num >= first_mcp_num)
         add_link(session, mcp_num)
 
-    '''
-    print("======")
-
-    for session in list_sessions():
-        print(session)
-    '''
 
 if __name__ == "__main__":
     main()
